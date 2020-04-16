@@ -1,0 +1,82 @@
+---
+title: "SeedlingStudy"
+author: "Samantha Brown"
+date: "4/16/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load the packages
+
+We are loading PhotoSynq Data.
+
+Tidyverse ia an umberlla library which has utilities to read csv files, do file manipulations and plotting
+
+```{r}
+library(tidyverse)
+library(lubridate)
+```
+
+## Load the data files
+
+
+```{r, echo=FALSE}
+microclimate_photosynq <- read_csv('./data/microclimate_photosynq_data.csv')
+summary(microclimate_photosynq)
+```
+
+## Exploratory plots
+
+Exploring relationships between variables. But, lets first format the required colums so that they are plot/analysis ready
+
+```{r, echo=FALSE}
+head(microclimate_photosynq)
+microclimate_photosynq$localdate <- mdy(microclimate_photosynq$Date)
+microclimate_photosynq$localdatetime  <- ymd_hms(paste(microclimate_photosynq$localdate,microclimate_photosynq$Time,sep = ' '))
+
+```
+
+## Temp/Humidity for the days of experiment
+
+```{r, echo=FALSE}
+microclimate_photosynq %>% ggplot(aes(x=localdatetime,y=`Ambient Temperature`)) + geom_point() +
+  labs(x="Time (Date)", y="Ambient Temperature (deg C)")
+
+```
+
+```{r, echo=FALSE}
+microclimate_photosynq %>% ggplot(aes(x=localdatetime,y=`Ambient Humidity`)) + geom_point() +
+  labs(x="Time (Date)", y="Ambient Humidity (deg C)")
+
+```
+
+## Are there elevational differences in PSystem 2 (proxy of Photosynthetic capacity) for both the species? 
+
+```{r, echo=FALSE}
+microclimate_photosynq %>% ggplot() + geom_bar(aes(x=Species,y=Phi2),stat = "identity") + facet_grid(.~Stand) +
+  labs(x="Species",y="PS2 (units ??)") + theme_minimal(base_size = 12)
+ggsave(filename = "figs/Species-comparisions.png",dpi = 300, width = 4, height = 4, units = "in")
+```
+
+I see ....
+
+```{r, echo=FALSE}
+microclimate_photosynq %>% ggplot() + geom_bar(aes(x=Species,y=`Light Intensity (PAR)`),stat = "identity") + facet_grid(.~Stand) +
+  labs(x="Species",y="PAR (units ??)") + theme_minimal(base_size = 12)
+ggsave(filename = "figs/Species-comparisions-lightPAR.png",dpi = 300, width = 4, height = 4, units = "in")
+```
+
+I see PAR pattern....
+
+## Are there elevational differences in PSystem 2 (proxy of Photosynthetic capacity) for both the species? Is it statiscally significant
+
+Lets do t-test to figure out if therer is any differences in PS2 of WH and PSF - Null Hypothesis -> No diff
+```{r, echo=FALSE}
+t.test(microclimate_photosynq[microclimate_photosynq$Species=='ABAM',c('Phi2')]$Phi2,
+       microclimate_photosynq[microclimate_photosynq$Species=='TSHE',c('Phi2')]$Phi2)
+```
