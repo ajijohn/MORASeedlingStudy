@@ -18,7 +18,9 @@ We are loading PhotoSynq Data.
 Tidyverse ia an umberlla library which has utilities to read csv files, do file manipulations and plotting
 
 ```{r}
-library(tidyverse)
+library(ggplot2)
+library(readr)
+library(magrittr)
 library(lubridate)
 ```
 
