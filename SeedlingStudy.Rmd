@@ -29,7 +29,7 @@ library(tidyverse)
 
 
 ```{r, echo=FALSE}
-photosynq <- read_csv('~/Desktop/photosynq.csv')
+photosynq <- read_csv('./data/photosynq.csv')
 summary(photosynq)
 ```
 
@@ -213,14 +213,14 @@ photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='AV06',c('PhiNO')]$PhiNO)
 ```
 ABAM at high elevation has a higher amount of light energy going towards non-regulated processes indicating stress. This is not in line with the results for PhiNPQ.
 ```{r, echo=FALSE}
-t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='CN01',c('NPQt')]$NPQt,
-photosynq[photosynq$Species=='TSHE' & photosynq$Station=='CN01',c('NPQt')]$NPQt)
-t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='TN01',c('NPQt')]$NPQt,
-photosynq[photosynq$Species=='TSHE' & photosynq$Station=='TN01',c('NPQt')]$NPQt)
-t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='TO04',c('NPQt')]$NPQt,
-photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='TO04',c('NPQt')]$NPQt)
-t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='AV06',c('NPQt')]$NPQt,
-photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='AV06',c('NPQt')]$NPQt)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='CN01',]$NPQt,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='CN01',]$NPQt)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='TN01',]$NPQt,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='TN01',]$NPQt)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='TO04',]$NPQt,
+photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='TO04',]$NPQt)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='AV06',]$NPQt,
+photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='AV06',]$NPQt)
 
 ```
 
