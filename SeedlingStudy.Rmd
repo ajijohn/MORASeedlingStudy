@@ -3,8 +3,8 @@ title: "SeedlingStudy"
 author: "Samantha Brown"
 date: "4/16/2020"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -22,14 +22,15 @@ library(ggplot2)
 library(readr)
 library(magrittr)
 library(lubridate)
+library(tidyverse)
 ```
 
 ## Load the data files
 
 
 ```{r, echo=FALSE}
-microclimate_photosynq <- read_csv('./data/microclimate_photosynq_data.csv')
-summary(microclimate_photosynq)
+photosynq <- read_csv('~/Desktop/photosynq.csv')
+summary(photosynq)
 ```
 
 ## Exploratory plots
@@ -37,22 +38,22 @@ summary(microclimate_photosynq)
 Exploring relationships between variables. But, lets first format the required colums so that they are plot/analysis ready
 
 ```{r, echo=FALSE}
-head(microclimate_photosynq)
-microclimate_photosynq$localdate <- mdy(microclimate_photosynq$Date)
-microclimate_photosynq$localdatetime  <- ymd_hms(paste(microclimate_photosynq$localdate,microclimate_photosynq$Time,sep = ' '))
+head(photosynq)
+photosynq$localdate <- mdy(photosynq$Date)
+photosynq$localdatetime  <- ymd_hms(paste(photosynq$localdate,photosynq$Time,sep = ' '))
 
 ```
 
 ## Temp/Humidity for the days of experiment
 
 ```{r, echo=FALSE}
-microclimate_photosynq %>% ggplot(aes(x=localdatetime,y=`Ambient Temperature`)) + geom_point() +
+photosynq %>% ggplot(aes(x=localdatetime,y=`Temperature`)) + geom_point() +
   labs(x="Time (Date)", y="Ambient Temperature (deg C)")
 
 ```
 
 ```{r, echo=FALSE}
-microclimate_photosynq %>% ggplot(aes(x=localdatetime,y=`Ambient Humidity`)) + geom_point() +
+photosynq %>% ggplot(aes(x=localdatetime,y=`Humidity`)) + geom_point() +
   labs(x="Time (Date)", y="Ambient Humidity (deg C)")
 
 ```
@@ -60,25 +61,172 @@ microclimate_photosynq %>% ggplot(aes(x=localdatetime,y=`Ambient Humidity`)) + g
 ## Are there elevational differences in PSystem 2 (proxy of Photosynthetic capacity) for both the species? 
 
 ```{r, echo=FALSE}
-microclimate_photosynq %>% ggplot() + geom_bar(aes(x=Species,y=Phi2),stat = "identity") + facet_grid(.~Stand) +
-  labs(x="Species",y="PS2 (units ??)") + theme_minimal(base_size = 12)
+photosynq %>% ggplot() + geom_bar(aes(x=Species,y=Phi2),stat = "identity") + facet_grid(.~Stand) +
+  labs(x="Species",y="PS2") + theme_minimal(base_size = 12)
 ggsave(filename = "figs/Species-comparisions.png",dpi = 300, width = 4, height = 4, units = "in")
 ```
 
-I see ....
+There seem to be similar patterns of ABAM having higher photosyem II quantum yield than TSHE for both elevations.
 
 ```{r, echo=FALSE}
-microclimate_photosynq %>% ggplot() + geom_bar(aes(x=Species,y=`Light Intensity (PAR)`),stat = "identity") + facet_grid(.~Stand) +
-  labs(x="Species",y="PAR (units ??)") + theme_minimal(base_size = 12)
+photosynq %>% ggplot() + geom_bar(aes(x=Species,y='PAR'),stat = "identity") + facet_grid(.~Stand) +
+  labs(x="Species",y="PAR") + theme_minimal(base_size = 12)
 ggsave(filename = "figs/Species-comparisions-lightPAR.png",dpi = 300, width = 4, height = 4, units = "in")
 ```
 
-I see PAR pattern....
+There seem to be similar patterns of ABAM experiencing more light radiation than TSHE at both elevations. This is consistant with the assumption that TSHE is more shade tolerant, and thus can outcompete ABAM where there is less light available.
 
-## Are there elevational differences in PSystem 2 (proxy of Photosynthetic capacity) for both the species? Is it statiscally significant
+## Are there elevational differences in PSystem 2 (proxy of Photosynthetic capacity) for both the species? Is it statiscally significant?
 
-Lets do t-test to figure out if therer is any differences in PS2 of WH and PSF - Null Hypothesis -> No diff
+Lets do t-test to figure out if there are any differences in PS2 of TSHE and ABAM - Null Hypothesis -> No diff
 ```{r, echo=FALSE}
-t.test(microclimate_photosynq[microclimate_photosynq$Species=='ABAM',c('Phi2')]$Phi2,
-       microclimate_photosynq[microclimate_photosynq$Species=='TSHE',c('Phi2')]$Phi2)
+t.test(photosynq[photosynq$Species=='ABAM',c('Phi2')]$Phi2,
+       photosynq[photosynq$Species=='TSHE',c('Phi2')]$Phi2)
+t.test(photosynq[photosynq$Stand=='TO04',c('Phi2')]$Phi2,
+       photosynq[photosynq$Stand=='AV06',c('Phi2')]$Phi2)
+t.test(photosynq[photosynq$Station=='CN01',c('Phi2')]$Phi2,
+       photosynq[photosynq$Station=='TN01',c('Phi2')]$Phi2)
+
+```
+There is a statistically significant difference in quantum yield in photosystem 2  between species but not between elevation or canopy coverage.
+
+Now I will try comparing a parameter that measures plant stress (NPQ).
+```{r, echo=FALSE}
+t.test(photosynq[photosynq$Species=='ABAM',c('NPQt')]$NPQt,
+       photosynq[photosynq$Species=='TSHE',c('NPQt')]$NPQt)
+t.test(photosynq[photosynq$Stand=='TO04',c('NPQt')]$NPQt,
+       photosynq[photosynq$Stand=='AV06',c('NPQt')]$NPQt)
+t.test(photosynq[photosynq$Station=='CN01',c('NPQt')]$NPQt,
+       photosynq[photosynq$Station=='TN01',c('NPQt')]$NPQt)
+```
+There is no statistically significant difference between elevations, canopy coverage, or species for nonphotochemical quenching.
+
+```{r, echo=FALSE}
+t.test(photosynq[photosynq$Species=='ABAM',c('PAR')]$PAR,
+       photosynq[photosynq$Species=='TSHE',c('PAR')]$PAR)
+t.test(photosynq[photosynq$Stand=='TO04',c('PAR')]$PAR,
+       photosynq[photosynq$Stand=='AV06',c('PAR')]$PAR)
+t.test(photosynq[photosynq$Station=='CN01',c('PAR')]$PAR,
+       photosynq[photosynq$Station=='TN01',c('PAR')]$PAR)
+```
+There is significantly higher light radiation for gaps than nongaps and for TSHE than ABAM. The bar plot from earlier seemed to show ABAM had higher PAR than TSHE so now I will perform a stand specific species comparison to see if this was only a pattern within a given stand. 
+
+```{r, echo=FALSE}
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='CN01',c('PAR')]$PAR,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='CN01',c('PAR')]$PAR)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='TN01',c('PAR')]$PAR,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='TN01',c('PAR')]$PAR)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='TO04',c('PAR')]$PAR,
+photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='TO04',c('PAR')]$PAR)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='AV06',c('PAR')]$PAR,
+photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='AV06',c('PAR')]$PAR)
+```
+ABAM has lower PAR than TSHE. This is only statistically significant at stand TO04 and stations TN01. This is the opposite of what the bar plot showed and what I would expect given that TSHE is more shade tolerant *check about this!
+
+Now I will look at the PAR for each species between stations (gap/nogap) at TO04 and AV06.
+
+```{r, echo=FALSE}
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='CN01' & photosynq$Stand=='TO04',c('PAR')]$PAR,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='CN01' & photosynq$Stand=='TO04',c('PAR')]$PAR)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='TN01' & photosynq$Stand=='TO04',c('PAR')]$PAR,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='TN01' & photosynq$Stand=='TO04',c('PAR')]$PAR)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='CN01' & photosynq$Stand=='AV06',c('PAR')]$PAR,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='CN01' & photosynq$Stand=='AV06',c('PAR')]$PAR)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='TN01' & photosynq$Stand=='AV06',c('PAR')]$PAR,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='TN01' & photosynq$Stand=='AV06',c('PAR')]$PAR)
+```
+TSHE having higher PAR than ABAM at the stand TO04(lower elevation) is only at the station TN01(nogap/shaded).
+```{r, echo=FALSE}
+t.test(photosynq[photosynq$Species=='ABAM',c('Temperature')]$Temperature,
+       photosynq[photosynq$Species=='TSHE',c('Temperature')]$Temperature)
+t.test(photosynq[photosynq$Stand=='TO04',c('Temperature')]$Temperature,
+       photosynq[photosynq$Stand=='AV06',c('Temperature')]$Temperature)
+t.test(photosynq[photosynq$Station=='CN01',c('Temperature')]$Temperature,
+       photosynq[photosynq$Station=='TN01',c('Temperature')]$Temperature)
+```
+There is no trend for temperature and species, but there is statisically significantly higher temperatures at TO04 than AV06 (lower elevation = higher temperature) and at CN01 than TN01 (canopy gap = higher temperature)
+
+Higher temperature and light radiation meet the expectations for canopy gaps compared to closed canopies.
+
+Now I will see if the difference in radiation and temperature correspond with photosytem II activity.
+```{r, echo=FALSE}
+model_linear1 <- lm(Phi2 ~ PAR, data = photosynq)
+summary(model_linear1)
+PAR_Phi2_intercept <- coef(model_linear1)[1]
+PAR_Phi2_slope <- coef(model_linear1)[2]
+```
+R squared is very low, I would like to try creating linear regressions with a subset of the values, so I can see the relantionship when filtered by species/elevation/canopy coverage.
+
+```{r, echo=FALSE}
+ggplot(data = photosynq, aes(x=PAR,y=Phi2)) + geom_point() +
+  labs(x="PAR", y="Yield of Photosystem 2") + geom_abline(intercept = PAR_Phi2_intercept, slope = PAR_Phi2_slope, color = 'red')
+```
+
+```{r, echo=FALSE}
+model_linear2 <- lm(Phi2 ~ Temperature, data = photosynq)
+summary(model_linear2)
+Temperature_Phi2_intercept <- coef(model_linear2)[1]
+Temperature_Phi2_slope <- coef(model_linear2)[2]
+```
+R squared value is also very low here.
+```{r, echo=FALSE}
+ggplot(data = photosynq, aes(x=Temperature,y=Phi2)) + geom_point() +
+  labs(x="Temperature(C)", y="Yield of Photosystem 2") + geom_abline(intercept = Temperature_Phi2_intercept, slope = Temperature_Phi2_slope, color = 'red')
+```
+```{r, echo=FALSE}
+model_linear3 <- lm(Phi2 ~ PAR, data = photosynq)
+summary(model_linear3)
+PAR_Phi2_intercept <- coef(model_linear3)[1]
+PAR_Phi2_slope <- coef(model_linear3)[2]
+```
+Now I'll look into another photosytheic performance parameter.
+```{r, echo=FALSE}
+t.test(photosynq[photosynq$Species=='ABAM',c('PhiNPQ')]$PhiNPQ,
+       photosynq[photosynq$Species=='TSHE',c('PhiNPQ')]$PhiNPQ)
+t.test(photosynq[photosynq$Stand=='TO04',c('PhiNPQ')]$PhiNPQ,
+       photosynq[photosynq$Stand=='AV06',c('PhiNPQ')]$PhiNPQ)
+t.test(photosynq[photosynq$Station=='CN01',c('PhiNPQ')]$PhiNPQ,
+       photosynq[photosynq$Station=='TN01',c('PhiNPQ')]$PhiNPQ)
+```
+ABAM has less light energy going towards nonphotochemical quenching, meaning it is less stressed than TSHE. 
+```{r, echo=FALSE}
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='CN01',c('PhiNPQ')]$PhiNPQ,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='CN01',c('PhiNPQ')]$PhiNPQ)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='TN01',c('PhiNPQ')]$PhiNPQ,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='TN01',c('PhiNPQ')]$PhiNPQ)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='TO04',c('PhiNPQ')]$PhiNPQ,
+photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='TO04',c('PhiNPQ')]$PhiNPQ)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='AV06',c('PhiNPQ')]$PhiNPQ,
+photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='AV06',c('PhiNPQ')]$PhiNPQ)
+
+```
+At higher elevation, TSHE has more stress (light going towards NPQ) than ABAM. Now to see the other parameter of stress (PhiNO).
+```{r, echo=FALSE}
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='CN01',c('PhiNO')]$PhiNO,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='CN01',c('PhiNO')]$PhiNO)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='TN01',c('PhiNO')]$PhiNO,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='TN01',c('PhiNO')]$PhiNO)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='TO04',c('PhiNO')]$PhiNO,
+photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='TO04',c('PhiNO')]$PhiNO)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='AV06',c('PhiNO')]$PhiNO,
+photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='AV06',c('PhiNO')]$PhiNO)
+```
+ABAM at high elevation has a higher amount of light energy going towards non-regulated processes indicating stress. This is not in line with the results for PhiNPQ.
+```{r, echo=FALSE}
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='CN01',c('NPQt')]$NPQt,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='CN01',c('NPQt')]$NPQt)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='TN01',c('NPQt')]$NPQt,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='TN01',c('NPQt')]$NPQt)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='TO04',c('NPQt')]$NPQt,
+photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='TO04',c('NPQt')]$NPQt)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='AV06',c('NPQt')]$NPQt,
+photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='AV06',c('NPQt')]$NPQt)
+
+```
+
+TSHE has higher nonphotochemical quenching than ABAM at higher elevation. This is consistant with the PHiNPQ value but inconsistant with the PhiNO value saying ABAM is in more stress.
+```{r, echo=FALSE}
+photosynq.TO04.TN01 <- subset(photosynq, Stand=="TO04", Station=="TN01")
+photosynq.TO04.CN01 <- subset(photosynq, Stand=="TO04", Station=="CN01")
+t.test(photosynq.TO04$Phi2~photosynq.TO04$Species)
 ```
