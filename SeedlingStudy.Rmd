@@ -61,7 +61,7 @@ photosynq %>% ggplot(aes(x=localdatetime,y=`Humidity`)) + geom_point() +
 ## Are there elevational differences in PSystem 2 (proxy of Photosynthetic capacity) for both the species? 
 
 ```{r, echo=FALSE}
-photosynq %>% ggplot() + geom_bar(aes(x=Species,y=Phi2),stat = "identity") + facet_grid(.~Stand) +
+photosynq %>% ggplot() + geom_bar(aes(x=Species,y=Phi2),stat = "summary", fun.y = "mean") + facet_grid(.~Stand) +
   labs(x="Species",y="PS2") + theme_minimal(base_size = 12)
 ggsave(filename = "figs/Species-comparisions.png",dpi = 300, width = 4, height = 4, units = "in")
 ```
@@ -69,7 +69,7 @@ ggsave(filename = "figs/Species-comparisions.png",dpi = 300, width = 4, height =
 There seem to be similar patterns of ABAM having higher photosyem II quantum yield than TSHE for both elevations.
 
 ```{r, echo=FALSE}
-photosynq %>% ggplot() + geom_bar(aes(x=Species,y='PAR'),stat = "identity") + facet_grid(.~Stand) +
+photosynq %>% ggplot() + geom_bar(aes(x=Species,y='PAR'),stat = "summary", fun.y = "mean") + facet_grid(.~Stand) +
   labs(x="Species",y="PAR") + theme_minimal(base_size = 12)
 ggsave(filename = "figs/Species-comparisions-lightPAR.png",dpi = 300, width = 4, height = 4, units = "in")
 ```
