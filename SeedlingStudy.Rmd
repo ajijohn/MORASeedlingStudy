@@ -62,8 +62,7 @@ photosynq %>% ggplot(aes(x=localdatetime,y=`Humidity`)) + geom_point() +
 ## Are there elevational differences in PSystem 2 (proxy of Photosynthetic capacity) for both the species? 
 
 ```{r, echo=FALSE}
-photosynq %>% ggplot() + geom_bar(aes(x=Species,y=Phi2),stat = "summary", fun.y = "mean") + facet_grid(.~Stand) +
-  labs(x="Species",y="PS2") + theme_minimal(base_size = 12)
+photosynq %>% ggplot() + geom_bar(aes(x=Species,y=Phi2),stat = "summary", fun.y = "mean") + facet_grid(.~Stand) + labs(x="Species",y="PS2") + theme_minimal(base_size = 12)
 ggsave(filename = "figs/Species-comparisions.png",dpi = 300, width = 4, height = 4, units = "in")
 ```
 
@@ -382,12 +381,69 @@ t.test(photosynq[photosynq$Stand=='TO04' & photosynq$Species=='ABAM',]$Phi2,
 photosynq[photosynq$Stand=='AV06' & photosynq$Species=='TSHE',]$Phi2)
 ```
 ```{r, echo=FALSE}
-photosynq %>% ggplot() + geom_bar(aes(x=Species,y='Phi2'),stat = "summary", fun.y = "mean") + facet_grid(.~Station) +
-  labs(x="Species",y="Phi2") + theme_minimal(base_size = 12)
-ggsave(filename = "figs/Species-comparisions-Phi2.png",dpi = 300, width = 4, height = 4, units = "in")
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='CN01',]$Phi2,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='CN01',]$Phi2)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='TN01',]$Phi2,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='TN01',]$Phi2)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='TO04',]$Phi2,
+photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='TO04',]$Phi2)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='AV06',]$Phi2,
+photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='AV06',]$Phi2)
+```
+
+```{r, echo=FALSE}
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='CN01',c('NPQt')]$NPQt,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='CN01',c('NPQt')]$NPQt)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Station=='TN01',c('NPQt')]$NPQt,
+photosynq[photosynq$Species=='TSHE' & photosynq$Station=='TN01',c('NPQt')]$NPQt)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='TO04',c('NPQt')]$NPQt,
+photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='TO04',c('NPQt')]$NPQt)
+t.test(photosynq[photosynq$Species=='ABAM' & photosynq$Stand=='AV06',c('NPQt')]$NPQt,
+photosynq[photosynq$Species=='TSHE' & photosynq$Stand=='AV06',c('NPQt')]$NPQt)
+
 ```
 ```{r, echo=FALSE}
-photosynq %>% ggplot() + geom_bar(aes(x=Stand,y='Phi2'),stat = "summary", fun.y = "mean") +
-  labs(x="Stand",y="Phi2") + theme_minimal(base_size = 12)
-ggsave(filename = "figs/Stand-comparisons-Phi2.png",dpi = 300, width = 4, height = 4, units = "in")
+## Graph 1: Phi2 - ABAM vs. TSHE by Elevation
+photosynq %>% ggplot() + geom_bar(aes(x=Species,y=Phi2),stat = "summary", fun.y = "mean") + facet_grid(.~Stand) +
+  labs(x="Species",y="PSII Efficiency") + theme_minimal(base_size = 12)
+ggsave(filename = "figs/Species-comparisons-by-elevation-Phi2.png",dpi = 300, width = 4, height = 4, units = "in")
+
+## Graph 2: Phi2 - ABAM vs. TSHE by Canopy Coverage
+photosynq %>% ggplot() + geom_bar(aes(x=Species,y=Phi2),stat = "summary", fun.y = "mean") + facet_grid(.~Station) +
+  labs(x="Species",y="PSII Efficiency") + theme_minimal(base_size = 12)
+ggsave(filename = "figs/Species-comparisons-by-canopy-Phi2.png",dpi = 300, width = 4, height = 4, units = "in")
+
+## Graph 3: NPQt - ABAM vs. TSHE by Elevation
+photosynq %>% ggplot() + geom_bar(aes(x=Species,y=NPQt),stat = "summary", fun.y = "mean") + facet_grid(.~Stand) +
+  labs(x="Species",y="Non-photochemical Quenching") + theme_minimal(base_size = 12)
+ggsave(filename = "figs/Species-comparisons-by-elevation-NPQt.png",dpi = 300, width = 4, height = 4, units = "in")
+
+## Graph 4: NPQt - ABAM vs. TSHE by Canopy Coverage
+photosynq %>% ggplot() + geom_bar(aes(x=Species,y=NPQt),stat = "summary", fun.y = "mean") + facet_grid(.~Station) +
+  labs(x="Species",y="Non-photochemical Quenching") + theme_minimal(base_size = 12)
+ggsave(filename = "figs/Species-comparisons-by-canopy-NPQt.png",dpi = 300, width = 4, height = 4, units = "in")
+
+```
+Graph1: Phi2 - ABAM vs. TSHE by Elevation
+ AV06: p-value = 0.007404, ABAM > TSHE
+ TO04: p-value = 0.06386, ABAM > TSHE
+
+Graph 2: Phi2 - ABAM vs. TSHE by Canopy Coverage
+ CN01: p-value = 0.07252, ABAM > TSHE
+ TN01: p-value = 0.0187, ABAM > TSHE
+ 
+Graph 3: NPQt - ABAM vs. TSHE by Elevation
+ AV06: p-value = 0.009417, TSHE > ABAM
+ TO04: p-value = 0.7994, TSHE > ABAM
+
+Graph 4: NPQt - ABAM vs. TSHE by Canopy Coverage
+ CN01: p-value = 0.05891, TSHE > ABAM
+ TN01: p-value = 0.1088, TSHE > ABAM
+ 
+ Conclusions:
+ 
+ 1. Pacific Silver Fir(ABAM) outperforms Western Hemlock(TSHE) at high elevation(AV06)
+ 2. There is insignificant difference of photosynthetic performance between species at low elevation(TO04)
+ 3. There is insignificant difference of photosynthetic performance between species at either canopy coverage conditions
+
 ```
