@@ -446,4 +446,58 @@ Graph 4: NPQt - ABAM vs. TSHE by Canopy Coverage
  2. There is insignificant difference of photosynthetic performance between species at low elevation(TO04)
  3. There is insignificant difference of photosynthetic performance between species at either canopy coverage conditions
 
+Redo plots
+```{r, echo=FALSE}
+## Graph 1: Phi2 - ABAM vs. TSHE by Elevation
+photosynq %>%
+  group_by(Stand,Species) %>%   # the grouping variables
+  summarise(mean_Phi = mean(Phi2),  # calculates the mean of each group
+            sd_Phi = sd(Phi2), # calculates the standard deviation of each group
+            n_Phi = n(),  # calculates the sample size per group
+            SE_Phi = sd(Phi2)/sqrt(n())) %>% # calculates the standard error of each group
+  ggplot() +
+  geom_col(aes(x=Species,y=mean_Phi))+
+  geom_errorbar(aes(x=Species,ymin = mean_Phi - sd_Phi, ymax = mean_Phi + sd_Phi), width=0.2) + facet_grid(.~Stand) +
+  labs(x="Species",y="PSII Efficiency") + theme_minimal(base_size = 12) 
+ggsave(filename = "figs/Rev1-Species-comparisons-by-elevation-Phi2.png",dpi = 300, width = 4, height = 4, units = "in")
+
+## Graph 2: Phi2 - ABAM vs. TSHE by Canopy Coverage
+photosynq %>%
+  group_by(Species,Station) %>%   # the grouping variables
+  summarise(mean_Phi = mean(Phi2),  # calculates the mean of each group
+            sd_Phi = sd(Phi2), # calculates the standard deviation of each group
+            n_Phi = n(),  # calculates the sample size per group
+            SE_Phi = sd(Phi2)/sqrt(n())) %>% # calculates the standard error of each group 
+  ggplot()+
+  geom_col(aes(x=Station,y=mean_Phi))+
+  geom_errorbar(aes(x=Station,ymin = mean_Phi - sd_Phi, ymax = mean_Phi + sd_Phi), width=0.2) + facet_grid(.~Species) +
+  labs(x="",y="PSII Efficiency") + theme_minimal(base_size = 12) 
+ggsave(filename = "figs/Rev1-Species-comparisons-by-canopy-Phi2.png",dpi = 300, width = 4, height = 4, units = "in")
+
+## Graph 3: NPQt - ABAM vs. TSHE by Elevation
+photosynq %>%
+  group_by(Stand,Species) %>%   # the grouping variables
+  summarise(mean_NPQt = mean(NPQt),  # calculates the mean of each group
+            sd_NPQt = sd(NPQt), # calculates the standard deviation of each group
+            n_NPQt = n(),  # calculates the sample size per group
+            SE_NPQt = sd(NPQt)/sqrt(n())) %>% # calculates the standard error of each group
+  ggplot() +
+  geom_col(aes(x=Species,y=mean_NPQt))+
+  geom_errorbar(aes(x=Species,ymin = mean_NPQt - sd_NPQt, ymax = mean_NPQt + sd_NPQt), width=0.2) + facet_grid(.~Stand) +
+  labs(x="Species",y="Non-photochemical Quenching") + theme_minimal(base_size = 12) 
+ggsave(filename = "figs/Rev1-Species-comparisons-by-elevation-NPQt.png",dpi = 300, width = 4, height = 4, units = "in")
+
+## Graph 4: NPQt - ABAM vs. TSHE by Canopy Coverage
+photosynq %>%
+  group_by(Species,Station) %>%   # the grouping variables
+  summarise(mean_NPQt = mean(NPQt),  # calculates the mean of each group
+            sd_NPQt = sd(NPQt), # calculates the standard deviation of each group
+            n_NPQt = n(),  # calculates the sample size per group
+            SE_NPQt = sd(NPQt)/sqrt(n())) %>% # calculates the standard error of each group 
+  ggplot()+
+  geom_col(aes(x=Station,y=mean_NPQt))+
+  geom_errorbar(aes(x=Station,ymin = mean_NPQt - sd_NPQt, ymax = mean_NPQt + sd_NPQt), width=0.2) + facet_grid(.~Species) +
+  labs(x="",y="Non-photochemical Quenching") + theme_minimal(base_size = 12) 
+ggsave(filename = "figs/Rev1-Species-comparisons-by-canopy-NPQt.png",dpi = 300, width = 4, height = 4, units = "in")
+
 ```
