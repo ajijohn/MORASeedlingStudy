@@ -510,13 +510,17 @@ Redo plots ver 2
 ## Graph 1: Phi2 - ABAM vs. TSHE by Elevation
   library(ggpubr)
 species_comparisons = list( c("ABAM", "TSHE") )
+# New facet label names for Stand
+Stand.labs <- c("Low Elevation", "High Elevation")
+names(Stand.labs) <- c("TO04", "AV06")
 
 photosynq %>%
   group_by(Stand,Species) %>%   # the grouping variables
 ggboxplot( x = "Species", y = "Phi2",
           color = "Species", palette = "jco")+ 
   stat_compare_means(comparisons = species_comparisons, label.y = c(0.7, 0.8, 0.9))+
-  stat_compare_means(label.y = 1.0) + facet_grid(.~Stand) +
+  stat_compare_means(label.y = 1.0) + facet_grid(.~Stand,
+  labeller = labeller(Stand = Stand.labs)) +
   labs(x="Species",y="PSII Efficiency") + theme_minimal(base_size = 24) 
 ggsave(filename = "figs/Rev2-Species-comparisons-by-elevation-Phi2.png",dpi = 300, width = 8, height = 8, units = "in")
 
@@ -539,7 +543,8 @@ photosynq %>%
 ggboxplot( x = "Species", y = "NPQt",
           color = "Species", palette = "jco")+ 
   stat_compare_means(comparisons = species_comparisons, label.y = c(2, 3, 4))+
-  stat_compare_means(label.y = 4.0) + facet_grid(.~Stand) +
+  stat_compare_means(label.y = 4.0) + facet_grid(.~Stand,
+  labeller = labeller(Stand = Stand.labs)) +
   labs(x="Species",y="Non-photochemical Quenching") + theme_minimal(base_size = 24) 
 ggsave(filename = "figs/Rev2-Species-comparisons-by-elevation-NPQt.png",dpi = 300, width = 8, height = 8, units = "in")
 
